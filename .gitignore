@@ -1,0 +1,65 @@
+# ========================
+# Gradle
+# ========================
+.gradle/
+**/build/
+!src/**/build/
+gradle-app.setting
+!gradle-wrapper.jar
+
+# ========================
+# Android Studio / IntelliJ IDEA
+# ========================
+.idea/
+*.iml
+*.eml
+*.ids
+*.orig
+*.xml~
+out/
+captures/
+
+# Keep shared run configurations
+!.idea/runConfigurations/
+
+# ========================
+# Android
+# ========================
+local.properties
+*.ap_
+*.apk
+*.aab
+*.aar
+proguard/
+.externalNativeBuild/
+.cxx/
+
+# ========================
+# Kotlin
+# ========================
+.kotlin/
+
+# ========================
+# macOS
+# ========================
+.DS_Store
+**/.DS_Store
+
+# ========================
+# Windows
+# ========================
+Thumbs.db
+Desktop.ini
+
+# ========================
+# Linux
+# ========================
+*~
+
+# ========================
+# Editor temp files
+# ========================
+*.swp
+*.swo
+*.tmp
+*.bak

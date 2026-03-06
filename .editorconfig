@@ -1,0 +1,80 @@
+root = true
+
+# ============================================================
+# All files
+# ============================================================
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+max_line_length = 120
+
+# ============================================================
+# Kotlin
+# ============================================================
+[*.{kt,kts}]
+indent_size = 4
+max_line_length = 120
+
+# Wildcard imports — strictly forbidden
+ij_kotlin_name_count_to_use_star_import = 2147483647
+ij_kotlin_name_count_to_use_star_import_for_members = 2147483647
+ij_kotlin_packages_to_use_import_on_demand =
+
+# Import layout: android → androidx → com → io → org → java/javax → kotlin → blank → aliases
+ij_kotlin_imports_layout = android.**,androidx.**,com.**,io.**,org.**,java.**,javax.**,kotlin.**,*,^
+
+# Code style
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+ij_kotlin_line_comment_add_space = true
+ij_kotlin_line_comment_at_first_column = false
+ij_kotlin_space_before_lambda_arrow = true
+ij_kotlin_wrap_expression_body_functions = 1
+
+# ============================================================
+# XML (Android resources, manifests)
+# ============================================================
+[*.xml]
+indent_size = 4
+max_line_length = off
+
+# ============================================================
+# TOML (version catalog)
+# ============================================================
+[*.toml]
+indent_size = 2
+
+# ============================================================
+# JSON
+# ============================================================
+[*.json]
+indent_size = 2
+
+# ============================================================
+# YAML (CI, detekt config)
+# ============================================================
+[*.{yml,yaml}]
+indent_size = 2
+
+# ============================================================
+# Markdown
+# ============================================================
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# ============================================================
+# Gradle scripts
+# ============================================================
+[{*.gradle,*.gradle.kts}]
+indent_size = 4
+
+# ============================================================
+# Shell scripts
+# ============================================================
+[{gradlew,gradlew.bat,*.sh}]
+end_of_line = lf
