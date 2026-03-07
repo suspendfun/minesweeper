@@ -34,6 +34,7 @@ kotlin {
     sourceSets {
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.splashscreen)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
