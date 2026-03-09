@@ -25,7 +25,7 @@ ij_kotlin_name_count_to_use_star_import_for_members = 2147483647
 ij_kotlin_packages_to_use_import_on_demand =
 
 # Import layout: android → androidx → com → io → org → java/javax → kotlin → blank → aliases
-ij_kotlin_imports_layout = android.**,androidx.**,com.**,io.**,org.**,java.**,javax.**,kotlin.**,*,^
+ij_kotlin_imports_layout = *,java.**,javax.**,kotlin.**,^
 
 # Code style
 ij_kotlin_allow_trailing_comma = true

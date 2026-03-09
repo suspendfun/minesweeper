@@ -5,21 +5,18 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 
-val LocalAppColors = staticCompositionLocalOf<AppColors> {
-    error("No AppColors provided")
-}
+val LocalAppColors = staticCompositionLocalOf { DefaultColors }
 
-val LocalAppTypography = staticCompositionLocalOf<AppTypography> {
-    error("No AppTypography provided")
-}
+val LocalAppTypography = staticCompositionLocalOf { DefaultTypography }
 
 @Composable
 fun AppTheme(
     content: @Composable () -> Unit,
 ) {
+    val typography = rememberTypography()
     CompositionLocalProvider(
         LocalAppColors provides DefaultColors,
-        LocalAppTypography provides DefaultTypography,
+        LocalAppTypography provides typography,
         content = content,
     )
 }

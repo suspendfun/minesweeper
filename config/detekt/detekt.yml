@@ -219,7 +219,7 @@ naming:
   ConstructorParameterNaming:
     active: true
     parameterPattern: '[a-z][A-Za-z0-9]*'
-    privateParameterPattern: '[a-z][A-Za-z0-9]*'
+    privateParameterPattern: '[_a-z][A-Za-z0-9]*'
   EnumNaming:
     active: true
     enumEntryPattern: '[A-Z][_a-zA-Z0-9]*'
@@ -545,6 +545,8 @@ style:
     active: true
   UnusedPrivateMember:
     active: true
+    ignoreAnnotated:
+      - 'androidx.compose.ui.tooling.preview.Preview'
   UnusedPrivateProperty:
     active: true
     allowedNames: '_|ignored|expected|serialVersionUID'
