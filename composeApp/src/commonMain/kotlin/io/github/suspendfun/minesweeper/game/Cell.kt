@@ -4,9 +4,13 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 data class Cell(
-    val state: CellState = CellState.Hidden,
-    val content: CellContent = CellContent.Empty,
-)
+    val state: CellState,
+    val content: CellContent,
+) {
+    companion object {
+        fun hidden() = Cell(CellState.Hidden, CellContent.Empty)
+    }
+}
 
 enum class CellState {
     Hidden,

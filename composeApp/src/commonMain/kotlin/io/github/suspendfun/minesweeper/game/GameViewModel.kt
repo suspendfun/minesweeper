@@ -18,32 +18,48 @@ private const val TIMER_INTERVAL_MS = 1_000L
 private const val SECONDS_PER_MINUTE = 60
 private const val TIMER_FIELD_WIDTH = 2
 
+@ConsistentCopyVisibility
 @Immutable
-data class GameUiState(
-    private val _minesLeft: Int = 0,
+data class GameUiState private constructor(
+    val board: Board,
+    private val _minesLeft: Int,
 ) {
     val minesLeft: String by lazy {
         _minesLeft.format(MINES_LEFT_FIELD_WIDTH)
     }
+
+    companion object {
+        fun create(config: GameConfig = DefaultGameConfig) =
+            GameUiState(
+                board = Board.Builder(config)
+                    .build(),
+                _minesLeft = config.mines,
+            )
+    }
 }
 
+@ConsistentCopyVisibility
 @Immutable
-data class TimerUiState(
+data class TimerUiState private constructor(
     private val _seconds: Int = 0,
 ) {
-    val timer: String by lazy {
+    val value: String by lazy {
         val m = (_seconds / SECONDS_PER_MINUTE).format(TIMER_FIELD_WIDTH)
         val s = (_seconds % SECONDS_PER_MINUTE).format(TIMER_FIELD_WIDTH)
         "$m:$s"
+    }
+
+    companion object {
+        fun create(seconds: Int = 0) = TimerUiState(seconds)
     }
 }
 
 @Stable
 class GameViewModel : ViewModel() {
-    private val _gameState = MutableStateFlow(GameUiState())
+    private val _gameState = MutableStateFlow(GameUiState.create())
     val gameState: StateFlow<GameUiState> = _gameState.asStateFlow()
 
-    private val _timerState = MutableStateFlow(TimerUiState())
+    private val _timerState = MutableStateFlow(TimerUiState.create())
     val timerState: StateFlow<TimerUiState> = _timerState.asStateFlow()
 
     private var timerJob: Job? = null
@@ -52,8 +68,8 @@ class GameViewModel : ViewModel() {
         stopTimer()
         // TODO: Must be called after the first cell is revealed, not now
         startTimerIfNeeded()
-        _gameState.value = GameUiState()
-        _timerState.value = TimerUiState()
+        _gameState.value = GameUiState.create()
+        _timerState.value = TimerUiState.create()
     }
 
     private fun startTimerIfNeeded() {
@@ -63,7 +79,7 @@ class GameViewModel : ViewModel() {
             while (true) {
                 delay(TIMER_INTERVAL_MS)
                 val elapsed = start.elapsedNow().inWholeSeconds
-                _timerState.update { it.copy(_seconds = elapsed.toInt()) }
+                _timerState.update { TimerUiState.create(elapsed.toInt()) }
             }
         }
     }

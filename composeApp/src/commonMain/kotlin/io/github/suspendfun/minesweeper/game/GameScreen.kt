@@ -1,6 +1,9 @@
 package io.github.suspendfun.minesweeper.game
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,7 +32,7 @@ fun GameScreen(
     modifier: Modifier = Modifier,
     viewModel: GameViewModel = viewModel(),
 ) {
-    val uiState by viewModel.gameState.collectAsStateWithLifecycle()
+    val gameState by viewModel.gameState.collectAsStateWithLifecycle()
     val timerState by viewModel.timerState.collectAsStateWithLifecycle()
     Surface(
         modifier = modifier,
@@ -37,8 +40,8 @@ fun GameScreen(
         GameScreenContent(
             modifier = Modifier
                 .safeDrawingPadding(),
-            minesLeft = uiState.minesLeft,
-            timer = timerState.timer,
+            game = gameState,
+            timer = timerState,
             onRestart = viewModel::restart,
         )
     }
@@ -46,37 +49,38 @@ fun GameScreen(
 
 @Composable
 private fun GameScreenContent(
-    minesLeft: String,
-    timer: String,
+    game: GameUiState,
+    timer: TimerUiState,
     onRestart: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(
+    Column(
         modifier = modifier
             .fillMaxSize()
             .padding(vertical = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         GameScreenHeader(
             modifier = Modifier
-                .align(Alignment.TopCenter)
                 .fillMaxWidth(),
-            minesLeft = minesLeft,
-            timer = timer,
+            minesLeft = game.minesLeft,
+            timer = timer.value,
         )
         GameScreenScene(
             modifier = Modifier
-                .align(Alignment.Center),
+                .weight(1f),
+            game = game,
         )
         GameScreenFooter(
             modifier = Modifier
-                .align(Alignment.BottomCenter),
+                .fillMaxWidth(),
             onRestart = onRestart,
         )
     }
 }
 
 @Composable
-private fun GameScreenHeader(
+private fun ColumnScope.GameScreenHeader(
     minesLeft: String,
     timer: String,
     modifier: Modifier = Modifier,
@@ -105,12 +109,13 @@ private fun GameScreenHeader(
 }
 
 @Composable
-private fun GameScreenFooter(
+private fun ColumnScope.GameScreenFooter(
     onRestart: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
+    Box(
         modifier = modifier,
+        contentAlignment = Alignment.Center,
     ) {
         Button(
             text = stringResource(Res.string.restart),
@@ -122,11 +127,10 @@ private fun GameScreenFooter(
 @Preview
 @Composable
 private fun GameScreenPreview() {
-    val state = GameUiState()
     Surface {
         GameScreenContent(
-            minesLeft = state.minesLeft.toString(),
-            timer = TimerUiState().timer,
+            game = GameUiState.create(DefaultGameConfig),
+            timer = TimerUiState.create(999),
             onRestart = {},
         )
     }
