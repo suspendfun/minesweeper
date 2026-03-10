@@ -6,16 +6,16 @@ import androidx.compose.runtime.Immutable
 class Board private constructor(
     private val config: GameConfig,
 ) {
-    private val cells: List<Cell> = List(config.col * config.row) { Cell.random() }
+    private val cells: List<Cell> = List(config.columns * config.rows) { Cell.random() }
 
-    val col: Int = config.col
+    val columns: Int = config.columns
 
-    val row: Int = config.row
+    val rows: Int = config.rows
 
     operator fun get(col: Int, row: Int): Cell {
-        require(col in 0 until config.col)
-        require(row in 0 until config.row)
-        return cells[col + row * config.col]
+        require(col >= 0 && row >= 0)
+        require(col < config.columns && row < config.rows)
+        return cells[col + row * config.columns]
     }
 
     class Builder(

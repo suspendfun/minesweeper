@@ -83,19 +83,19 @@ fun GameScreenScene(
     ) {
         val spacingPx = CellSpacing.toPx()
         val cellSize = min(
-            (size.width - spacingPx * (game.board.col - 1)) / game.board.col,
-            (size.height - spacingPx * (game.board.row - 1)) / game.board.row,
+            (size.width - spacingPx * (game.board.columns - 1)) / game.board.columns,
+            (size.height - spacingPx * (game.board.rows - 1)) / game.board.rows,
         ).roundToInt()
 
-        val gridW = cellSize * game.board.col + spacingPx * (game.board.col - 1)
-        val gridH = cellSize * game.board.row + spacingPx * (game.board.row - 1)
+        val gridW = cellSize * game.board.columns + spacingPx * (game.board.columns - 1)
+        val gridH = cellSize * game.board.rows + spacingPx * (game.board.rows - 1)
         val originX = (size.width - gridW) / 2f
         val originY = (size.height - gridH) / 2f
         val cellDstSize = IntSize(cellSize, cellSize)
         val cellStep = cellSize + spacingPx
 
-        for (row in 0 until game.board.row) {
-            for (col in 0 until game.board.col) {
+        for (row in 0 until game.board.rows) {
+            for (col in 0 until game.board.columns) {
                 val dstOffset = IntOffset(
                     x = (originX + col * cellStep).roundToInt(),
                     y = (originY + row * cellStep).roundToInt(),
