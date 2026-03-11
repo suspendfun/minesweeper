@@ -63,30 +63,35 @@ class GameViewModel : ViewModel() {
     val timerState: StateFlow<TimerUiState> = _timerState.asStateFlow()
 
     private var timerJob: Job? = null
+    private var timerSeconds: Int = 0
 
     fun restart() {
-        stopTimer()
+        pauseTimer()
+        timerSeconds = 0
         // TODO: Must be called after the first cell is revealed, not now
         startTimerIfNeeded()
         _gameState.value = GameUiState.create()
         _timerState.value = TimerUiState.create()
     }
 
+    fun pauseTimer() {
+        timerJob?.cancel()
+        timerJob = null
+    }
+
+    fun resumeTimer() = startTimerIfNeeded()
+
     private fun startTimerIfNeeded() {
         if (timerJob != null) return
         timerJob = viewModelScope.launch {
             val start = TimeSource.Monotonic.markNow()
+            val offset = timerSeconds
             while (true) {
                 delay(TIMER_INTERVAL_MS)
-                val elapsed = start.elapsedNow().inWholeSeconds
-                _timerState.update { TimerUiState.create(elapsed.toInt()) }
+                timerSeconds = offset + start.elapsedNow().inWholeSeconds.toInt()
+                _timerState.update { TimerUiState.create(timerSeconds) }
             }
         }
-    }
-
-    private fun stopTimer() {
-        timerJob?.cancel()
-        timerJob = null
     }
 }
 

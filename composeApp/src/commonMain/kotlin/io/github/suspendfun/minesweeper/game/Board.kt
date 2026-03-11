@@ -6,7 +6,7 @@ import androidx.compose.runtime.Immutable
 class Board private constructor(
     private val config: GameConfig,
 ) {
-    private val cells: List<Cell> = List(config.columns * config.rows) { Cell.random() }
+    private val cells: List<Cell> = List(config.columns * config.rows) { Cell.hidden() }
 
     val columns: Int = config.columns
 
