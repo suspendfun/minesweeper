@@ -2,9 +2,15 @@ package io.github.suspendfun.minesweeper.game
 
 import androidx.compose.runtime.Immutable
 
+enum class BoardState {
+    Idle,
+    Active,
+}
+
 @Immutable
 class Board private constructor(
     private val config: GameConfig,
+    private val state: BoardState,
     init: GameConfig.(col: Int, row: Int) -> Cell,
 ) {
     private val cells: List<Cell> =
@@ -12,11 +18,9 @@ class Board private constructor(
             config.init(index % config.columns, index / config.columns)
         }
 
-    val columns: Int =
-        config.columns
+    val columns: Int = config.columns
 
-    val rows: Int =
-        config.rows
+    val rows: Int = config.rows
 
     operator fun get(col: Int, row: Int): Cell {
         require(isInBounds(col, row))
@@ -33,8 +37,25 @@ class Board private constructor(
 
     fun reveal(col: Int, row: Int): Board {
         require(isInBounds(col, row))
-        // TODO: Implement reveal logic
-        return this
+        val cell = this[col, row]
+        if (cell.state != CellState.Hidden) {
+            return this
+        }
+        return if (state == BoardState.Idle) {
+            activate(col, row)
+        } else {
+            when (cell.content) {
+                CellContent.Empty -> {
+                    revealCascading(col, row)
+                }
+                CellContent.Mine -> {
+                    explode(col, row)
+                }
+                else -> {
+                    revealOne(col, row)
+                }
+            }
+        }
     }
 
     fun flag(col: Int, row: Int): Board {
@@ -43,9 +64,28 @@ class Board private constructor(
         return this
     }
 
+    private fun activate(col: Int, row: Int): Board {
+        // TODO: Implement activate logic
+        return this
+    }
+
+    private fun explode(col: Int, row: Int): Board {
+        // TODO: Implement explode logic
+        return this
+    }
+
+    private fun revealOne(col: Int, row: Int): Board {
+        // TODO: Implement revealOne logic
+        return this
+    }
+
+    private fun revealCascading(col: Int, row: Int): Board {
+        // TODO: Implement revealCascading logic
+        return this
+    }
+
     @Suppress("UnusedPrivateMember")
     private fun neighbors(col: Int, row: Int): List<Coordinate> {
-        require(isInBounds(col, row))
         return buildList {
             for (deltaCol in -1..1) {
                 for (deltaRow in -1..1) {
@@ -70,6 +110,6 @@ class Board private constructor(
 
     companion object {
         fun create(config: GameConfig): Board =
-            Board(config) { _, _ -> Cell.hidden() }
+            Board(config, BoardState.Idle) { _, _ -> Cell.hidden() }
     }
 }

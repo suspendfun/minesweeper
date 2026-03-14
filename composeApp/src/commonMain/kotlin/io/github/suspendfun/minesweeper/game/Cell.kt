@@ -23,9 +23,11 @@ data class Cell(
     val content: CellContent,
 ) {
     companion object {
-        fun hidden() = Cell(CellState.Hidden, CellContent.Empty)
+        fun hidden(content: CellContent = CellContent.Empty) =
+            Cell(CellState.Hidden, content)
 
-        fun random() = POSSIBLE_CELLS.random()
+        fun random() =
+            POSSIBLE_CELLS.random()
     }
 }
 
