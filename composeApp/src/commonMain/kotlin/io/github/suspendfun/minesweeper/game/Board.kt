@@ -36,7 +36,7 @@ class Board private constructor(
     }
 
     fun reveal(col: Int, row: Int): Board {
-        require(isInBounds(col, row) && isHidden(col, row) && !isFlagged(col, row))
+        require(isInBounds(col, row) && canReveal(col, row))
         return if (state == BoardState.Idle) {
             activate(col, row)
         } else {
@@ -62,7 +62,7 @@ class Board private constructor(
     }
 
     private fun activate(col: Int, row: Int): Board {
-        // TODO: Implement activate logic
+        // TODO: Implement activate
         return this
     }
 
@@ -81,14 +81,14 @@ class Board private constructor(
             val current = queue.removeFirst()
             val (currentCol, currentRow) = current
 
-            val alreadyVisited = !visited.add(current)
-            if (alreadyVisited) continue
+            if (!visited.add(current)) {
+                continue
+            }
 
-            val isEmptyCell = this[currentCol, currentRow].content == CellContent.Empty
-            if (isEmptyCell) {
+            if (isEmpty(currentCol, currentRow)) {
                 val unvisitedNeighbors = neighbors(currentCol, currentRow)
                     .filter { (neighborCol, neighborRow) ->
-                        !isFlagged(neighborCol, neighborRow) && !isRevealed(neighborCol, neighborRow)
+                        canReveal(neighborCol, neighborRow)
                     }
                 queue.addAll(unvisitedNeighbors)
             }
@@ -140,6 +140,12 @@ class Board private constructor(
 
     private fun isExploded(col: Int, row: Int): Boolean =
         this[col, row].isExploded
+
+    private fun isEmpty(col: Int, row: Int): Boolean =
+        this[col, row].content == CellContent.Empty
+
+    private fun canReveal(col: Int, row: Int): Boolean =
+        isHidden(col, row) && !isFlagged(col, row)
 
     private fun indexOf(col: Int, row: Int): Int =
         col + row * config.columns
