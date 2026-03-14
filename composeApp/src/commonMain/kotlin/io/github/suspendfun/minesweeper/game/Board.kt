@@ -5,9 +5,12 @@ import androidx.compose.runtime.Immutable
 @Immutable
 class Board private constructor(
     private val config: GameConfig,
+    init: GameConfig.(col: Int, row: Int) -> Cell,
 ) {
     private val cells: List<Cell> =
-        List(config.columns * config.rows) { Cell.hidden() }
+        List(config.columns * config.rows) { index ->
+            config.init(index % config.columns, index / config.columns)
+        }
 
     val columns: Int =
         config.columns
@@ -52,10 +55,8 @@ class Board private constructor(
         return cells[indexOf(col, row)]
     }
 
-    class Builder(
-        private val config: GameConfig,
-    ) {
-        fun build() =
-            Board(config)
+    companion object {
+        fun hidden(config: GameConfig): Board =
+            Board(config) { _, _ -> Cell.hidden() }
     }
 }
