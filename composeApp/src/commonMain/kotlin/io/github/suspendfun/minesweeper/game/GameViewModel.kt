@@ -31,8 +31,7 @@ data class GameUiState private constructor(
     companion object {
         fun create(config: GameConfig = DefaultGameConfig) =
             GameUiState(
-                board = Board.Builder(config)
-                    .build(),
+                board = Board.create(config),
                 _minesLeft = config.mines,
             )
     }

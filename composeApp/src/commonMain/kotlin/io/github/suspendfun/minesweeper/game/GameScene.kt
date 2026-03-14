@@ -94,14 +94,12 @@ fun GameScreenScene(
         val cellDstSize = IntSize(cellSize, cellSize)
         val cellStep = cellSize + spacingPx
 
-        for (row in 0 until game.board.rows) {
-            for (col in 0 until game.board.columns) {
-                val dstOffset = IntOffset(
-                    x = (originX + col * cellStep).roundToInt(),
-                    y = (originY + row * cellStep).roundToInt(),
-                )
-                drawCell(game.board[row, col], dstOffset, cellDstSize, sprites)
-            }
+        game.board.forEach { col, row, cell ->
+            val dstOffset = IntOffset(
+                x = (originX + col * cellStep).roundToInt(),
+                y = (originY + row * cellStep).roundToInt(),
+            )
+            drawCell(cell, dstOffset, cellDstSize, sprites)
         }
     }
 }
