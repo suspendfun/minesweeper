@@ -56,7 +56,7 @@ class Board private constructor(
 
     fun flag(col: Int, row: Int): Board {
         require(isInBounds(col, row) && isHidden(col, row))
-        return withCell(col, row) {
+        return updated(col, row) {
             it.copy(state = CellState.Hidden(isFlagged = !it.isFlagged))
         }
     }
@@ -67,10 +67,10 @@ class Board private constructor(
     }
 
     private fun explode(col: Int, row: Int): Board =
-        withCell(col, row) { it.copy(state = CellState.Revealed(isExploded = true)) }
+        updated(col, row) { it.copy(state = CellState.Revealed(isExploded = true)) }
 
     private fun revealOne(col: Int, row: Int): Board =
-        withCell(col, row) { it.copy(state = CellState.Revealed()) }
+        updated(col, row) { it.copy(state = CellState.Revealed()) }
 
     private fun revealCascading(col: Int, row: Int): Board {
         val visited = mutableSetOf<Coordinate>()
@@ -94,64 +94,53 @@ class Board private constructor(
             }
         }
 
-        return withCells(visited) {
+        return updated(visited) {
             it.copy(state = CellState.Revealed())
         }
     }
 
-    private fun withCell(col: Int, row: Int, transform: (Cell) -> Cell): Board =
+    private fun updated(col: Int, row: Int, transform: (Cell) -> Cell): Board =
         Board(config, state) { c, r ->
             if (c == col && r == row) transform(this[c, r]) else this[c, r]
         }
 
-    private fun withCells(coordinates: Set<Coordinate>, transform: (Cell) -> Cell): Board =
+    private fun updated(coordinates: Set<Coordinate>, transform: (Cell) -> Cell): Board =
         Board(config, state) { c, r ->
             if (Coordinate(c, r) in coordinates) transform(this[c, r]) else this[c, r]
         }
-
-    private fun neighbors(col: Int, row: Int): List<Coordinate> {
-        return buildList {
-            for (deltaCol in -1..1) {
-                for (deltaRow in -1..1) {
-                    if (deltaCol == 0 && deltaRow == 0) {
-                        continue
-                    }
-                    val newCol = col + deltaCol
-                    val newRow = row + deltaRow
-                    if (isInBounds(newCol, newRow)) {
-                        add(Coordinate(newCol, newRow))
-                    }
-                }
-            }
-        }
-    }
-
-    private fun isInBounds(col: Int, row: Int): Boolean =
-        col >= 0 && col < config.columns && row >= 0 && row < config.rows
-
-    private fun isHidden(col: Int, row: Int): Boolean =
-        this[col, row].isHidden
-
-    private fun isFlagged(col: Int, row: Int): Boolean =
-        this[col, row].isFlagged
-
-    private fun isRevealed(col: Int, row: Int): Boolean =
-        this[col, row].isRevealed
-
-    private fun isExploded(col: Int, row: Int): Boolean =
-        this[col, row].isExploded
-
-    private fun isEmpty(col: Int, row: Int): Boolean =
-        this[col, row].content == CellContent.Empty
-
-    private fun canReveal(col: Int, row: Int): Boolean =
-        isHidden(col, row) && !isFlagged(col, row)
-
-    private fun indexOf(col: Int, row: Int): Int =
-        col + row * config.columns
 
     companion object {
         fun create(config: GameConfig): Board =
             Board(config, BoardState.Idle) { _, _ -> Cell.hidden() }
     }
 }
+
+private fun Board.indexOf(col: Int, row: Int): Int =
+    col + row * columns
+
+private fun Board.isInBounds(col: Int, row: Int): Boolean =
+    col >= 0 && col < columns && row >= 0 && row < rows
+
+private fun Board.isHidden(col: Int, row: Int): Boolean =
+    this[col, row].isHidden
+
+private fun Board.isFlagged(col: Int, row: Int): Boolean =
+    this[col, row].isFlagged
+
+private fun Board.isEmpty(col: Int, row: Int): Boolean =
+    this[col, row].content == CellContent.Empty
+
+private fun Board.canReveal(col: Int, row: Int): Boolean =
+    isHidden(col, row) && !isFlagged(col, row)
+
+private fun Board.neighbors(col: Int, row: Int): List<Coordinate> =
+    buildList {
+        for (deltaCol in -1..1) {
+            for (deltaRow in -1..1) {
+                if (deltaCol == 0 && deltaRow == 0) continue
+                val newCol = col + deltaCol
+                val newRow = row + deltaRow
+                if (isInBounds(newCol, newRow)) add(Coordinate(newCol, newRow))
+            }
+        }
+    }
