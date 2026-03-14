@@ -110,20 +110,28 @@ private fun DrawScope.drawCell(
     dstSize: IntSize,
     sprites: CellSprites,
 ) {
-    val background = when (cell.state) {
-        CellState.Hidden -> sprites.hidden
-        CellState.Revealed -> sprites.revealed
-        CellState.Exploded -> sprites.exploded
-    }
-    drawImage(background, dstOffset = dstOffset, dstSize = dstSize, filterQuality = FilterQuality.None)
-
-    val overlay = when (val content = cell.content) {
-        is CellContent.Empty -> null
-        is CellContent.Flag -> sprites.flag
-        is CellContent.Mine -> sprites.mine
-        is CellContent.Number -> sprites.numbers[content.count - 1]
-    }
-    if (overlay != null) {
-        drawImage(overlay, dstOffset = dstOffset, dstSize = dstSize, filterQuality = FilterQuality.None)
+    drawImage(cell.background(sprites), dstOffset = dstOffset, dstSize = dstSize, filterQuality = FilterQuality.None)
+    cell.overlay(sprites)?.let {
+        drawImage(it, dstOffset = dstOffset, dstSize = dstSize, filterQuality = FilterQuality.None)
     }
 }
+
+private fun Cell.background(sprites: CellSprites): ImageBitmap =
+    when (val state = state) {
+        is CellState.Hidden -> sprites.hidden
+        is CellState.Revealed -> if (state.isExploded) sprites.exploded else sprites.revealed
+    }
+
+private fun Cell.overlay(sprites: CellSprites): ImageBitmap? =
+    when (val state = state) {
+        is CellState.Hidden -> {
+            if (state.isFlagged) sprites.flag else null
+        }
+        is CellState.Revealed -> {
+            when (val content = content) {
+                is CellContent.Empty -> null
+                is CellContent.Mine -> sprites.mine
+                is CellContent.Number -> sprites.numbers[content.count - 1]
+            }
+        }
+    }

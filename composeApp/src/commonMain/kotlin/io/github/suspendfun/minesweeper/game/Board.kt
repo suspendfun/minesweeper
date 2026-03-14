@@ -11,11 +11,11 @@ enum class BoardState {
 class Board private constructor(
     private val config: GameConfig,
     private val state: BoardState,
-    init: GameConfig.(col: Int, row: Int) -> Cell,
+    init: (col: Int, row: Int) -> Cell,
 ) {
     private val cells: List<Cell> =
         List(config.columns * config.rows) { index ->
-            config.init(index % config.columns, index / config.columns)
+            init(index % config.columns, index / config.columns)
         }
 
     val columns: Int = config.columns
@@ -38,7 +38,7 @@ class Board private constructor(
     fun reveal(col: Int, row: Int): Board {
         require(isInBounds(col, row))
         val cell = this[col, row]
-        if (cell.state != CellState.Hidden) {
+        if (cell.isRevealed || cell.isFlagged) {
             return this
         }
         return if (state == BoardState.Idle) {
@@ -60,8 +60,21 @@ class Board private constructor(
 
     fun flag(col: Int, row: Int): Board {
         require(isInBounds(col, row))
-        // TODO: Implement flag logic
-        return this
+        val cell = this[col, row]
+        if (!cell.isHidden) {
+            return this
+        }
+        return Board(config, state) { c, r ->
+            if (c == col && r == row) {
+                val state = CellState.Hidden(isFlagged = !cell.isFlagged)
+                Cell(
+                    state = state,
+                    content = cell.content,
+                )
+            } else {
+                this[c, r]
+            }
+        }
     }
 
     private fun activate(col: Int, row: Int): Board {
