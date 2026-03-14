@@ -119,7 +119,7 @@ private fun Board.indexOf(col: Int, row: Int): Int =
     col + row * columns
 
 private fun Board.isInBounds(col: Int, row: Int): Boolean =
-    col >= 0 && col < columns && row >= 0 && row < rows
+    col in 0..<columns && row in 0..<rows
 
 private fun Board.isHidden(col: Int, row: Int): Boolean =
     this[col, row].isHidden
