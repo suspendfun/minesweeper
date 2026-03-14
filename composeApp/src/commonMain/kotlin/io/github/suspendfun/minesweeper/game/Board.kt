@@ -36,15 +36,11 @@ class Board private constructor(
     }
 
     fun reveal(col: Int, row: Int): Board {
-        require(isInBounds(col, row))
-        val cell = this[col, row]
-        if (cell.isRevealed || cell.isFlagged) {
-            return this
-        }
+        require(isInBounds(col, row) && isHidden(col, row) && !isFlagged(col, row))
         return if (state == BoardState.Idle) {
             activate(col, row)
         } else {
-            when (cell.content) {
+            when (this[col, row].content) {
                 CellContent.Empty -> {
                     revealCascading(col, row)
                 }
@@ -59,21 +55,9 @@ class Board private constructor(
     }
 
     fun flag(col: Int, row: Int): Board {
-        require(isInBounds(col, row))
-        val cell = this[col, row]
-        if (!cell.isHidden) {
-            return this
-        }
-        return Board(config, state) { c, r ->
-            if (c == col && r == row) {
-                val state = CellState.Hidden(isFlagged = !cell.isFlagged)
-                Cell(
-                    state = state,
-                    content = cell.content,
-                )
-            } else {
-                this[c, r]
-            }
+        require(isInBounds(col, row) && isHidden(col, row))
+        return withCell(col, row) {
+            it.copy(state = CellState.Hidden(isFlagged = !it.isFlagged))
         }
     }
 
@@ -82,22 +66,49 @@ class Board private constructor(
         return this
     }
 
-    private fun explode(col: Int, row: Int): Board {
-        // TODO: Implement explode logic
-        return this
-    }
+    private fun explode(col: Int, row: Int): Board =
+        withCell(col, row) { it.copy(state = CellState.Revealed(isExploded = true)) }
 
-    private fun revealOne(col: Int, row: Int): Board {
-        // TODO: Implement revealOne logic
-        return this
-    }
+    private fun revealOne(col: Int, row: Int): Board =
+        withCell(col, row) { it.copy(state = CellState.Revealed()) }
 
     private fun revealCascading(col: Int, row: Int): Board {
-        // TODO: Implement revealCascading logic
-        return this
+        val visited = mutableSetOf<Coordinate>()
+        val queue = ArrayDeque<Coordinate>()
+        queue.add(Coordinate(col, row))
+
+        while (queue.isNotEmpty()) {
+            val current = queue.removeFirst()
+            val (currentCol, currentRow) = current
+
+            val alreadyVisited = !visited.add(current)
+            if (alreadyVisited) continue
+
+            val isEmptyCell = this[currentCol, currentRow].content == CellContent.Empty
+            if (isEmptyCell) {
+                val unvisitedNeighbors = neighbors(currentCol, currentRow)
+                    .filter { (neighborCol, neighborRow) ->
+                        !isFlagged(neighborCol, neighborRow) && !isRevealed(neighborCol, neighborRow)
+                    }
+                queue.addAll(unvisitedNeighbors)
+            }
+        }
+
+        return withCells(visited) {
+            it.copy(state = CellState.Revealed())
+        }
     }
 
-    @Suppress("UnusedPrivateMember")
+    private fun withCell(col: Int, row: Int, transform: (Cell) -> Cell): Board =
+        Board(config, state) { c, r ->
+            if (c == col && r == row) transform(this[c, r]) else this[c, r]
+        }
+
+    private fun withCells(coordinates: Set<Coordinate>, transform: (Cell) -> Cell): Board =
+        Board(config, state) { c, r ->
+            if (Coordinate(c, r) in coordinates) transform(this[c, r]) else this[c, r]
+        }
+
     private fun neighbors(col: Int, row: Int): List<Coordinate> {
         return buildList {
             for (deltaCol in -1..1) {
@@ -117,6 +128,18 @@ class Board private constructor(
 
     private fun isInBounds(col: Int, row: Int): Boolean =
         col >= 0 && col < config.columns && row >= 0 && row < config.rows
+
+    private fun isHidden(col: Int, row: Int): Boolean =
+        this[col, row].isHidden
+
+    private fun isFlagged(col: Int, row: Int): Boolean =
+        this[col, row].isFlagged
+
+    private fun isRevealed(col: Int, row: Int): Boolean =
+        this[col, row].isRevealed
+
+    private fun isExploded(col: Int, row: Int): Boolean =
+        this[col, row].isExploded
 
     private fun indexOf(col: Int, row: Int): Int =
         col + row * config.columns
